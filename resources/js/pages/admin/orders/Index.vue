@@ -46,15 +46,15 @@ const statusLabel = (s: Order['status']) => {
 const statusClass = (s: Order['status']) => {
     switch (s) {
         case 'paid':
-            return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            return 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300';
         case 'pending':
-            return 'bg-amber-50 text-amber-800 border-amber-200';
+            return 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-300';
         case 'cancelled':
-            return 'bg-rose-50 text-rose-700 border-rose-200';
+            return 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/40 dark:text-rose-300';
         case 'refunded':
-            return 'bg-slate-50 text-slate-700 border-slate-200';
+            return 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-300';
         default:
-            return 'bg-slate-50 text-slate-700 border-slate-200';
+            return 'border-border bg-muted text-muted-foreground';
     }
 };
 
@@ -72,99 +72,114 @@ const totalCount = computed(
 
 <template>
     <AdminLayout title="Narudžbe">
-        <div
-            class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
-        >
-            <div class="rounded border border-gray-800 bg-gray-900 p-3 text-sm text-gray-200">
-                <div class="text-gray-400">Ukupno</div>
-                <div class="text-lg font-semibold">{{ totalCount }}</div>
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <!-- Ukupno -->
+            <div class="rounded border border-border bg-card p-3 text-sm text-foreground">
+                <div class="text-muted-foreground">Ukupno</div>
+                <div class="text-lg font-semibold tabular-nums">{{ totalCount }}</div>
             </div>
 
-            <form
-                @submit.prevent="submitSearch"
-                class="flex items-center gap-2"
-            >
+            <!-- Search -->
+            <form @submit.prevent="submitSearch" class="flex items-center gap-2">
                 <input
                     v-model="search"
                     type="text"
                     placeholder="Pretraži (code, status, user, lokacija)"
-                    class="w-80 rounded border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600/40"
+                    class="w-80 rounded border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
                 />
                 <button
-                    class="rounded border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-gray-200 hover:bg-gray-800"
+                    class="rounded border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-muted"
                 >
                     Traži
                 </button>
             </form>
         </div>
 
-        <div class="mt-4 overflow-auto rounded border border-gray-800 bg-gray-900">
-            <table class="min-w-full text-sm text-gray-200">
-                <thead class="bg-gray-800 text-gray-200">
-                    <tr>
-                        <th class="px-3 py-2 text-left">Code</th>
-                        <th class="px-3 py-2 text-left">Korisnik</th>
-                        <th class="px-3 py-2 text-left">Lokacija</th>
-                        <th class="px-3 py-2 text-left">Status</th>
-                        <th class="px-3 py-2 text-right">Ukupno</th>
-                        <th class="px-3 py-2"></th>
-                    </tr>
+        <!-- Table wrapper -->
+        <div class="mt-4 overflow-auto rounded border border-border bg-card">
+            <table class="min-w-full text-sm text-foreground">
+                <thead class="bg-muted/60">
+                <tr>
+                    <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Code
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Korisnik
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Lokacija
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Status
+                    </th>
+                    <th class="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Ukupno
+                    </th>
+                    <th class="px-3 py-2"></th>
+                </tr>
                 </thead>
 
                 <tbody>
-                    <tr
-                        v-for="o in orders.data"
-                        :key="o.id"
-                        class="border-t border-gray-800 hover:bg-gray-800/60"
-                    >
-                        <td class="px-3 py-2">
-                            <div class="font-medium">{{ o.code }}</div>
-                            <div class="text-xs text-gray-400">#{{ o.id }}</div>
-                        </td>
-                        <td class="px-3 py-2">
-                            <div class="font-medium">{{ userName(o) }}</div>
-                            <div class="text-xs text-gray-400">
-                                {{ o.user?.email ?? '-' }}
-                            </div>
-                        </td>
-                        <td class="px-3 py-2">
-                            {{ o.location?.name ?? '-' }}
-                        </td>
-                        <td class="px-3 py-2">
+                <tr
+                    v-for="o in orders.data"
+                    :key="o.id"
+                    class="border-t border-border/60 even:bg-muted/30 hover:bg-muted/50"
+                >
+                    <td class="px-3 py-2">
+                        <div class="font-medium tabular-nums">{{ o.code }}</div>
+                        <div class="text-xs text-muted-foreground">#{{ o.id }}</div>
+                    </td>
+
+                    <td class="px-3 py-2">
+                        <div class="font-medium leading-tight">
+                            {{ userName(o) }}
+                        </div>
+                        <div class="max-w-[240px] truncate text-xs text-muted-foreground">
+                            {{ o.user?.email ?? '-' }}
+                        </div>
+                    </td>
+
+                    <td class="px-3 py-2">
+                        {{ o.location?.name ?? '-' }}
+                    </td>
+
+                    <td class="px-3 py-2">
                             <span
-                                class="inline-flex items-center rounded-full border px-2 py-1 text-xs"
+                                class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium"
                                 :class="statusClass(o.status)"
                             >
                                 {{ statusLabel(o.status) }}
                             </span>
-                        </td>
-                        <td class="px-3 py-2 text-right font-medium">
-                            {{ o.total_gross }} {{ o.currency }}
-                        </td>
-                        <td class="px-3 py-2 text-right">
-                            <div class="flex justify-end gap-3">
-                                <Link
-                                    :href="`/admin/orders/${o.id}`"
-                                    class="text-blue-400 hover:underline"
-                                    >Pregled</Link
-                                >
-                                <Link
-                                    :href="`/admin/orders/${o.id}/edit`"
-                                    class="text-blue-400 hover:underline"
-                                    >Uredi</Link
-                                >
-                            </div>
-                        </td>
-                    </tr>
+                    </td>
 
-                    <tr v-if="!orders.data.length">
-                        <td
-                            colspan="6"
-                            class="px-3 py-10 text-center text-gray-400"
-                        >
-                            Nema narudžbi.
-                        </td>
-                    </tr>
+                    <td class="px-3 py-2 text-right font-medium tabular-nums">
+                        {{ o.total_gross }} {{ o.currency }}
+                    </td>
+
+                    <td class="px-3 py-2 text-right">
+                        <div class="inline-flex items-center gap-3 text-sm">
+                            <Link
+                                :href="`/admin/orders/${o.id}`"
+                                class="text-primary hover:underline"
+                            >
+                                Pregled
+                            </Link>
+                            <span class="text-muted-foreground">·</span>
+                            <Link
+                                :href="`/admin/orders/${o.id}/edit`"
+                                class="text-primary hover:underline"
+                            >
+                                Uredi
+                            </Link>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr v-if="!orders.data.length">
+                    <td colspan="6" class="px-3 py-10 text-center text-muted-foreground">
+                        Nema narudžbi.
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>

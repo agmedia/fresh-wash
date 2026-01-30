@@ -48,157 +48,149 @@ const number = (value: unknown) => {
         <div class="space-y-6">
             <!-- Stat cards -->
             <div class="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
-                <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                    <div class="text-xs text-gray-400">Prihod danas (bruto)</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-100">{{ money(stats.revenue_today_gross) }}</div>
-                    <div class="mt-2 text-xs text-gray-500">NET: {{ money(stats.revenue_today_net) }}</div>
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="text-xs text-muted-foreground">Prihod danas (bruto)</div>
+                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                        {{ money(stats.revenue_today_gross) }}
+                    </div>
+                    <div class="mt-2 text-xs text-muted-foreground">
+                        NET: <span class="tabular-nums text-foreground/80">{{ money(stats.revenue_today_net) }}</span>
+                    </div>
                 </div>
 
-                <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                    <div class="text-xs text-gray-400">Narudžbe</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-100">{{ number(stats.orders) }}</div>
-                    <div class="mt-2 text-xs text-gray-500">Pending: {{ number(stats.pending_orders) }}</div>
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="text-xs text-muted-foreground">Narudžbe</div>
+                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                        {{ number(stats.orders) }}
+                    </div>
+                    <div class="mt-2 text-xs text-muted-foreground">
+                        Pending: <span class="tabular-nums text-foreground/80">{{ number(stats.pending_orders) }}</span>
+                    </div>
                 </div>
 
-                <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                    <div class="text-xs text-gray-400">Plaćanja</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-100">{{ number(stats.payments) }}</div>
-                    <div class="mt-2 text-xs text-gray-500">Pending: {{ number(stats.pending_payments) }}</div>
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="text-xs text-muted-foreground">Plaćanja</div>
+                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                        {{ number(stats.payments) }}
+                    </div>
+                    <div class="mt-2 text-xs text-muted-foreground">
+                        Pending: <span class="tabular-nums text-foreground/80">{{ number(stats.pending_payments) }}</span>
+                    </div>
                 </div>
 
-                <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                    <div class="text-xs text-gray-400">Rezervacije</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-100">{{ number(stats.reservations) }}</div>
-                    <div class="mt-2 text-xs text-gray-500">Ukupno</div>
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="text-xs text-muted-foreground">Rezervacije</div>
+                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                        {{ number(stats.reservations) }}
+                    </div>
+                    <div class="mt-2 text-xs text-muted-foreground">Ukupno</div>
                 </div>
 
-                <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                    <div class="text-xs text-gray-400">Korisnici</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-100">{{ number(stats.users) }}</div>
-                    <div class="mt-2 text-xs text-gray-500">Ukupno</div>
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="text-xs text-muted-foreground">Korisnici</div>
+                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                        {{ number(stats.users) }}
+                    </div>
+                    <div class="mt-2 text-xs text-muted-foreground">Ukupno</div>
                 </div>
 
-                <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                    <div class="text-xs text-gray-400">Lokacije</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-100">{{ number(stats.locations) }}</div>
-                    <div class="mt-2 text-xs text-gray-500">Aktivne</div>
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="text-xs text-muted-foreground">Lokacije</div>
+                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                        {{ number(stats.locations) }}
+                    </div>
+                    <div class="mt-2 text-xs text-muted-foreground">Aktivne</div>
                 </div>
 
-                <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                    <div class="text-xs text-gray-400">Ormarići / VešMašine</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-100">{{ number(stats.lockers) }}</div>
-                    <div class="mt-2 text-xs text-gray-500">Ukupno</div>
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="text-xs text-muted-foreground">Ormarići / VešMašine</div>
+                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                        {{ number(stats.lockers) }}
+                    </div>
+                    <div class="mt-2 text-xs text-muted-foreground">Ukupno</div>
                 </div>
 
-                <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                    <div class="text-xs text-gray-400">Uređaji</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-100">{{ number(stats.devices) }}</div>
-                    <div class="mt-2 text-xs text-gray-500">Ukupno</div>
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="text-xs text-muted-foreground">Uređaji</div>
+                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                        {{ number(stats.devices) }}
+                    </div>
+                    <div class="mt-2 text-xs text-muted-foreground">Ukupno</div>
                 </div>
             </div>
 
-            <!-- Revenue last 7 days -->
-            <!-- <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="text-sm font-semibold text-gray-100">Prihod zadnjih 7 dana</div>
-                        <div class="mt-1 text-xs text-gray-500">Bruto (EUR) • PDV 25% (NET je informativno)</div>
-                    </div>
-                    <div class="text-xs text-gray-400">
-                        Max: {{ money(maxGross) }}
-                    </div>
-                </div>
-
-                <div class="mt-4 grid grid-cols-7 gap-2">
-                    <div v-for="d in series" :key="d.date" class="flex flex-col items-stretch gap-2">
-                        <div
-                            class="relative h-28 rounded bg-gray-800"
-                            :title="`${d.label} • bruto ${money(d.gross)} • net ${money(d.net)}`"
-                        >
-                            <div
-                                class="absolute bottom-0 left-0 right-0 rounded bg-emerald-600/80"
-                                :style="{ height: barHeight(d.gross) + '%' }"
-                            />
-                        </div>
-                        <div class="text-center text-[11px] text-gray-400">{{ d.label }}</div>
-                    </div>
-                </div>
-
-                <div v-if="!series.length" class="mt-3 text-xs text-gray-500">
-                    Nema podataka za prikaz.
-                </div>
-            </div> -->
-
             <!-- Quick links -->
-            <div class="rounded border border-gray-800 bg-neutral-900 p-4">
-                <div class="text-sm font-semibold text-gray-100">Brzi linkovi</div>
+            <div class="rounded border border-border bg-card p-4">
+                <div class="text-sm font-semibold text-foreground">Brzi linkovi</div>
+
                 <div class="mt-3 flex flex-wrap gap-2">
                     <Link
                         href="/admin/reservations"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Rezervacije
                     </Link>
                     <Link
                         href="/admin/orders"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Narudžbe
                     </Link>
                     <Link
                         href="/admin/payments"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Plaćanja
                     </Link>
                     <Link
                         href="/admin/locations"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Lokacije
                     </Link>
                     <Link
                         href="/admin/lockers"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Ormarići
                     </Link>
                     <Link
                         href="/admin/devices"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Uređaji
                     </Link>
                     <Link
                         href="/admin/services"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Usluge
                     </Link>
                     <Link
                         href="/admin/tariffs"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Tarife
                     </Link>
                     <Link
                         href="/admin/pages"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Stranice
                     </Link>
                     <Link
                         href="/admin/settings/roles"
-                        class="rounded bg-gray-800 px-3 py-2 text-sm text-gray-200 hover:bg-neutral-700"
+                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                         Uloge & prava
                     </Link>
                 </div>
 
-                <div class="mt-3 text-xs text-gray-500">
-                    * Ako ne vidiš brojke, provjeri da controller za dashboard šalje <code>stats</code> u Inertia props.
+                <div class="mt-3 text-xs text-muted-foreground">
+                    * Ako ne vidiš brojke, provjeri da controller za dashboard šalje <code class="rounded bg-muted px-1 py-0.5">stats</code> u Inertia props.
                 </div>
             </div>
         </div>
     </AdminLayout>
 </template>
+
