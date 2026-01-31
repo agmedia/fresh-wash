@@ -18,9 +18,7 @@ interface Location {
     note: string | null;
 }
 
-const props = defineProps<{
-    location: Location;
-}>();
+const props = defineProps<{ location: Location }>();
 
 const form = useForm({
     name: props.location.name ?? '',
@@ -39,189 +37,169 @@ const form = useForm({
 const processing = computed(() => form.processing);
 
 const submit = () => {
-    form.put(route('admin.locations.update', props.location.id));
+    form.put(`/admin/locations/${props.location.id}`, {
+        preserveScroll: true,
+    });
 };
+
+const showHref = computed(() => `/admin/locations/${props.location.id}`);
 </script>
 
 <template>
     <AdminLayout :title="`Uredi lokaciju #${location.id}`">
-        <form @submit.prevent="submit" class="max-w-3xl space-y-6">
-            <div class="space-y-2">
-                <label class="block text-sm font-medium">Naziv</label>
-                <input
-                    v-model="form.name"
-                    type="text"
-                    class="w-full rounded border px-3 py-2 text-sm"
-                />
-                <div v-if="form.errors.name" class="text-sm text-red-600">
-                    {{ form.errors.name }}
-                </div>
-            </div>
+        <div class="max-w-3xl space-y-6">
+            <!-- Card -->
+            <form
+                @submit.prevent="submit"
+                class="rounded border border-border bg-card p-5 card-elev space-y-6"
+            >
+                <!-- Basic -->
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-foreground">
+                            Naziv
+                        </label>
+                        <input
+                            v-model="form.name"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground
+                                   placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                        />
+                        <p v-if="form.errors.name" class="text-xs text-rose-600">
+                            {{ form.errors.name }}
+                        </p>
+                    </div>
 
-            <div class="space-y-2">
-                <label class="block text-sm font-medium"
-                    >Slug (opcionalno)</label
-                >
-                <input
-                    v-model="form.slug"
-                    type="text"
-                    class="w-full rounded border px-3 py-2 text-sm"
-                />
-                <div v-if="form.errors.slug" class="text-sm text-red-600">
-                    {{ form.errors.slug }}
-                </div>
-            </div>
-
-            <div class="grid gap-4 md:grid-cols-2">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Adresa 1</label>
-                    <input
-                        v-model="form.address_line1"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.address_line1"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.address_line1 }}
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-foreground">
+                            Slug
+                        </label>
+                        <input
+                            v-model="form.slug"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground
+                                   placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                        />
+                        <p v-if="form.errors.slug" class="text-xs text-rose-600">
+                            {{ form.errors.slug }}
+                        </p>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Adresa 2</label>
-                    <input
-                        v-model="form.address_line2"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.address_line2"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.address_line2 }}
+                <!-- Address -->
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium">Adresa 1</label>
+                        <input
+                            v-model="form.address_line1"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring/40"
+                        />
+                        <p v-if="form.errors.address_line1" class="text-xs text-rose-600">
+                            {{ form.errors.address_line1 }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium">Adresa 2</label>
+                        <input
+                            v-model="form.address_line2"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring/40"
+                        />
+                        <p v-if="form.errors.address_line2" class="text-xs text-rose-600">
+                            {{ form.errors.address_line2 }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium">Poštanski broj</label>
+                        <input
+                            v-model="form.postal_code"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring/40"
+                        />
+                        <p v-if="form.errors.postal_code" class="text-xs text-rose-600">
+                            {{ form.errors.postal_code }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium">Grad</label>
+                        <input
+                            v-model="form.city"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring/40"
+                        />
+                        <p v-if="form.errors.city" class="text-xs text-rose-600">
+                            {{ form.errors.city }}
+                        </p>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium"
-                        >Poštanski broj</label
-                    >
-                    <input
-                        v-model="form.postal_code"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.postal_code"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.postal_code }}
+                <!-- Meta -->
+                <div class="grid gap-4 md:grid-cols-3">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium">Država</label>
+                        <input
+                            v-model="form.country_code"
+                            maxlength="2"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm uppercase focus:ring-2 focus:ring-ring/40"
+                        />
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium">Lat</label>
+                        <input
+                            v-model="form.lat"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring/40"
+                        />
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium">Lng</label>
+                        <input
+                            v-model="form.lng"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring/40"
+                        />
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Grad</label>
-                    <input
-                        v-model="form.city"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div v-if="form.errors.city" class="text-sm text-red-600">
-                        {{ form.errors.city }}
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium"
-                        >Država (ISO2)</label
-                    >
-                    <input
-                        v-model="form.country_code"
-                        type="text"
-                        maxlength="2"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.country_code"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.country_code }}
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Aktivna</label>
+                <!-- Status -->
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium">Status</label>
                     <select
                         v-model="form.is_active"
-                        class="w-full rounded border px-3 py-2 text-sm"
+                        class="w-48 rounded border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring/40"
                     >
-                        <option :value="true">Da</option>
-                        <option :value="false">Ne</option>
+                        <option :value="true">Aktivna</option>
+                        <option :value="false">Neaktivna</option>
                     </select>
-                    <div
-                        v-if="form.errors.is_active"
-                        class="text-sm text-red-600"
+                </div>
+
+                <!-- Note -->
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium">Napomena</label>
+                    <textarea
+                        v-model="form.note"
+                        rows="4"
+                        class="w-full rounded border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring/40"
+                    />
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3 pt-2">
+                    <button
+                        type="submit"
+                        class="rounded border border-border bg-primary px-4 py-2 text-sm font-medium text-primary-foreground
+                               hover:opacity-90 disabled:opacity-60"
+                        :disabled="processing"
                     >
-                        {{ form.errors.is_active }}
-                    </div>
+                        Spremi promjene
+                    </button>
+
+                    <a
+                        :href="showHref"
+                        class="text-sm text-muted-foreground hover:text-foreground"
+                    >
+                        Pregled
+                    </a>
                 </div>
-            </div>
-
-            <div class="grid gap-4 md:grid-cols-2">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Lat</label>
-                    <input
-                        v-model="form.lat"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div v-if="form.errors.lat" class="text-sm text-red-600">
-                        {{ form.errors.lat }}
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Lng</label>
-                    <input
-                        v-model="form.lng"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div v-if="form.errors.lng" class="text-sm text-red-600">
-                        {{ form.errors.lng }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <label class="block text-sm font-medium">Napomena</label>
-                <textarea
-                    v-model="form.note"
-                    rows="4"
-                    class="w-full rounded border px-3 py-2 text-sm"
-                ></textarea>
-                <div v-if="form.errors.note" class="text-sm text-red-600">
-                    {{ form.errors.note }}
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <button
-                    type="submit"
-                    class="rounded bg-blue-600 px-4 py-2 text-sm text-white"
-                    :disabled="processing"
-                >
-                    Spremi promjene
-                </button>
-
-                <a
-                    :href="route('admin.locations.show', location.id)"
-                    class="text-sm text-blue-600"
-                >
-                    Pregled
-                </a>
-            </div>
-        </form>
+            </form>
+        </div>
     </AdminLayout>
 </template>

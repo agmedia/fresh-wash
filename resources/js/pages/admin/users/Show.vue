@@ -15,58 +15,109 @@ interface User {
     whatsapp_opt_in: boolean;
 }
 
-const props = defineProps<{
-    user: User;
-}>();
+const { user } = defineProps<{ user: User }>();
 
-const fullName =
-    `${props.user.first_name ?? ''} ${props.user.last_name ?? ''}`.trim();
+const fullName = `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim();
+
+const editHref = `/admin/users/${user.id}/edit`;
+const listHref = `/admin/users`;
 </script>
 
 <template>
     <AdminLayout :title="`Korisnik #${user.id}`">
         <div class="max-w-3xl space-y-6">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <h2 class="text-xl font-semibold">
-                        {{ fullName || user.email }}
-                    </h2>
-                    <p class="text-sm text-gray-500">{{ user.email }}</p>
-                </div>
-
-                <a
-                    :href="`/admin/users/${user.id}/edit`"
-                    class="rounded border px-3 py-2 text-sm"
+            <!-- Sticky header (isti UX kao order/payment) -->
+            <div class="sticky top-3 z-20">
+                <div
+                    class="flex flex-wrap items-center justify-between gap-3 rounded border border-border bg-card p-3 card-elev"
                 >
-                    Uredi
-                </a>
+                    <div class="min-w-0">
+                        <div class="text-sm font-semibold text-foreground truncate">
+                            {{ fullName || user.email }}
+                        </div>
+                        <div class="text-xs text-muted-foreground">
+                            {{ user.email }}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <a
+                            :href="editHref"
+                            class="rounded border border-border bg-primary px-4 py-2 text-sm font-medium text-primary-foreground
+                                   hover:opacity-90"
+                        >
+                            Uredi
+                        </a>
+
+                        <a
+                            :href="listHref"
+                            class="text-sm text-muted-foreground hover:text-foreground"
+                        >
+                            Natrag
+                        </a>
+                    </div>
+                </div>
             </div>
 
-            <div class="space-y-1 rounded border p-4 text-sm">
-                <div><strong>Ime:</strong> {{ user.first_name ?? '-' }}</div>
-                <div><strong>Prezime:</strong> {{ user.last_name ?? '-' }}</div>
-                <div><strong>Email:</strong> {{ user.email }}</div>
-                <div><strong>Telefon:</strong> {{ user.phone ?? '-' }}</div>
-                <div>
-                    <strong>WhatsApp opt-in:</strong>
-                    {{ user.whatsapp_opt_in ? 'da' : 'ne' }}
+            <!-- Osnovno -->
+            <div class="rounded border border-border bg-card p-5 card-elev">
+                <div class="mb-3">
+                    <div class="text-sm font-semibold text-foreground">Osnovno</div>
+                    <div class="text-xs text-muted-foreground">Podaci o korisniku.</div>
+                </div>
+
+                <div class="grid gap-2 text-sm">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Ime</span>
+                        <span class="text-foreground">{{ user.first_name ?? '-' }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Prezime</span>
+                        <span class="text-foreground">{{ user.last_name ?? '-' }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Email</span>
+                        <span class="text-foreground">{{ user.email }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Telefon</span>
+                        <span class="text-foreground">{{ user.phone ?? '-' }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">WhatsApp opt-in</span>
+                        <span class="text-foreground">{{ user.whatsapp_opt_in ? 'da' : 'ne' }}</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="space-y-1 rounded border p-4 text-sm">
-                <div>
-                    <strong>Adresa 1:</strong> {{ user.address_line1 ?? '-' }}
+            <!-- Adresa -->
+            <div class="rounded border border-border bg-card p-5 card-elev">
+                <div class="mb-3">
+                    <div class="text-sm font-semibold text-foreground">Adresa</div>
+                    <div class="text-xs text-muted-foreground">Podaci o adresi.</div>
                 </div>
-                <div>
-                    <strong>Adresa 2:</strong> {{ user.address_line2 ?? '-' }}
-                </div>
-                <div>
-                    <strong>Poštanski broj:</strong>
-                    {{ user.postal_code ?? '-' }}
-                </div>
-                <div><strong>Grad:</strong> {{ user.city ?? '-' }}</div>
-                <div>
-                    <strong>Država:</strong> {{ user.country_code ?? '-' }}
+
+                <div class="grid gap-2 text-sm">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Adresa 1</span>
+                        <span class="text-foreground">{{ user.address_line1 ?? '-' }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Adresa 2</span>
+                        <span class="text-foreground">{{ user.address_line2 ?? '-' }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Poštanski broj</span>
+                        <span class="text-foreground">{{ user.postal_code ?? '-' }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Grad</span>
+                        <span class="text-foreground">{{ user.city ?? '-' }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-muted-foreground">Država</span>
+                        <span class="text-foreground">{{ user.country_code ?? '-' }}</span>
+                    </div>
                 </div>
             </div>
         </div>

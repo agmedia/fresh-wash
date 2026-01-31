@@ -30,9 +30,14 @@ const search = ref(props.filters?.search ?? '');
 const submitSearch = () => {
     router.get(
         '/admin/orders',
-        { search: search.value },
+        { search: search.value || undefined },
         { preserveState: true, replace: true },
     );
+};
+
+const resetFilters = () => {
+    search.value = '';
+    router.get('/admin/orders', {}, { preserveState: true, replace: true });
 };
 
 const statusLabel = (s: Order['status']) => {
@@ -72,33 +77,51 @@ const totalCount = computed(
 
 <template>
     <AdminLayout title="Narudžbe">
-        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <!-- Top bar -->
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <!-- Ukupno -->
-            <div class="rounded border border-border bg-card p-3 text-sm text-foreground">
+            <div class="rounded border border-border bg-card p-3 text-sm text-foreground card-elev">
                 <div class="text-muted-foreground">Ukupno</div>
                 <div class="text-lg font-semibold tabular-nums">{{ totalCount }}</div>
             </div>
 
             <!-- Search -->
-            <form @submit.prevent="submitSearch" class="flex items-center gap-2">
-                <input
-                    v-model="search"
-                    type="text"
-                    placeholder="Pretraži (code, status, user, lokacija)"
-                    class="w-80 rounded border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
-                />
+            <form @submit.prevent="submitSearch" class="flex w-full items-center gap-2 lg:w-auto">
+                <div class="relative w-full lg:w-96">
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Pretraži (code, user, lokacija)"
+                        class="w-full rounded border border-input bg-background px-3 py-2 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                    />
+                    <span
+                        class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
+                        ⌕
+                    </span>
+                </div>
+
                 <button
-                    class="rounded border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    type="submit"
+                    class="rounded border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
                 >
                     Traži
+                </button>
+
+                <button
+                    type="button"
+                    class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    @click="resetFilters"
+                >
+                    Reset
                 </button>
             </form>
         </div>
 
-        <!-- Table wrapper -->
-        <div class="mt-4 overflow-auto rounded border border-border bg-card">
+        <!-- Table -->
+        <div class="mt-4 overflow-auto rounded border border-border bg-card card-elev">
             <table class="min-w-full text-sm text-foreground">
-                <thead class="bg-muted/60">
+                <thead class="sticky top-0 z-10 bg-muted/70 backdrop-blur">
                 <tr>
                     <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Code
@@ -115,7 +138,9 @@ const totalCount = computed(
                     <th class="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Ukupno
                     </th>
-                    <th class="px-3 py-2"></th>
+                    <th class="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Akcije
+                    </th>
                 </tr>
                 </thead>
 
@@ -134,7 +159,7 @@ const totalCount = computed(
                         <div class="font-medium leading-tight">
                             {{ userName(o) }}
                         </div>
-                        <div class="max-w-[240px] truncate text-xs text-muted-foreground">
+                        <div class="max-w-[260px] truncate text-xs text-muted-foreground">
                             {{ o.user?.email ?? '-' }}
                         </div>
                     </td>
@@ -157,17 +182,16 @@ const totalCount = computed(
                     </td>
 
                     <td class="px-3 py-2 text-right">
-                        <div class="inline-flex items-center gap-3 text-sm">
+                        <div class="inline-flex items-center gap-2">
                             <Link
                                 :href="`/admin/orders/${o.id}`"
-                                class="text-primary hover:underline"
+                                class="rounded border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted"
                             >
                                 Pregled
                             </Link>
-                            <span class="text-muted-foreground">·</span>
                             <Link
                                 :href="`/admin/orders/${o.id}/edit`"
-                                class="text-primary hover:underline"
+                                class="rounded border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted"
                             >
                                 Uredi
                             </Link>

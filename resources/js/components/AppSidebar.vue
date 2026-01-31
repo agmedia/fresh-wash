@@ -43,7 +43,7 @@ const platformNavItems: NavItem[] = [
         icon: MapPin,
     },
     {
-        title: 'Veš Mašine',
+        title: 'Ormarići - Lockers',
         href: '/admin/lockers',
         icon: Box,
     },

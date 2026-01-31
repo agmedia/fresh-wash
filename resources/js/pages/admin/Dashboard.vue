@@ -19,18 +19,7 @@ type Stats = {
 };
 
 const page = usePage();
-
 const stats = computed<Stats>(() => (page.props as any).stats ?? {});
-
-// const series = computed(() => stats.value.revenue_last_7_days ?? []);
-// const maxGross = computed(() => {
-//     const vals = series.value.map((d) => Number(d.gross ?? 0));
-//     return Math.max(1, ...vals);
-// });
-// const barHeight = (gross: number) => {
-//     const g = Number(gross ?? 0);
-//     return Math.round((g / maxGross.value) * 100);
-// };
 
 const money = (value: unknown) => {
     const n = Number(value ?? 0);
@@ -41,6 +30,88 @@ const number = (value: unknown) => {
     const n = Number(value ?? 0);
     return new Intl.NumberFormat('hr-HR').format(isFinite(n) ? n : 0);
 };
+
+type StatCard = {
+    key: string;
+    title: string;
+    value: () => string;
+    sublabel?: string;
+    subvalue?: () => string;
+};
+
+const statCards = computed<StatCard[]>(() => [
+    {
+        key: 'revenue_today',
+        title: 'Prihod danas (bruto)',
+        value: () => money(stats.value.revenue_today_gross),
+        sublabel: 'NET',
+        subvalue: () => money(stats.value.revenue_today_net),
+    },
+    {
+        key: 'orders',
+        title: 'Narudžbe',
+        value: () => number(stats.value.orders),
+        sublabel: 'Pending',
+        subvalue: () => number(stats.value.pending_orders),
+    },
+    {
+        key: 'payments',
+        title: 'Plaćanja',
+        value: () => number(stats.value.payments),
+        sublabel: 'Pending',
+        subvalue: () => number(stats.value.pending_payments),
+    },
+    {
+        key: 'reservations',
+        title: 'Rezervacije',
+        value: () => number(stats.value.reservations),
+        sublabel: 'Ukupno',
+        subvalue: () => number(stats.value.reservations),
+    },
+    {
+        key: 'users',
+        title: 'Korisnici',
+        value: () => number(stats.value.users),
+        sublabel: 'Ukupno',
+        subvalue: () => number(stats.value.users),
+    },
+    {
+        key: 'locations',
+        title: 'Lokacije',
+        value: () => number(stats.value.locations),
+        sublabel: 'Aktivne',
+        subvalue: () => number(stats.value.locations),
+    },
+    {
+        key: 'lockers',
+        title: 'Ormarići / Lockers',
+        value: () => number(stats.value.lockers),
+        sublabel: 'Ukupno',
+        subvalue: () => number(stats.value.lockers),
+    },
+    {
+        key: 'devices',
+        title: 'Uređaji',
+        value: () => number(stats.value.devices),
+        sublabel: 'Ukupno',
+        subvalue: () => number(stats.value.devices),
+    },
+]);
+
+type QuickLink = { href: string; label: string };
+
+const quickLinks: QuickLink[] = [
+    { href: '/admin/reservations', label: 'Rezervacije' },
+    { href: '/admin/orders', label: 'Narudžbe' },
+    { href: '/admin/payments', label: 'Plaćanja' },
+    { href: '/admin/locations', label: 'Lokacije' },
+    { href: '/admin/lockers', label: 'Uređaji / Lockers' },
+    { href: '/admin/devices', label: 'Uređaji' },
+    { href: '/admin/services', label: 'Usluge' },
+    { href: '/admin/tariffs', label: 'Tarife' },
+    { href: '/admin/pages', label: 'Stranice' },
+    { href: '/admin/settings/roles', label: 'Uloge & prava' },
+];
 </script>
 
 <template>
@@ -48,149 +119,45 @@ const number = (value: unknown) => {
         <div class="space-y-6">
             <!-- Stat cards -->
             <div class="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
-                <div class="rounded border border-border bg-card p-4">
-                    <div class="text-xs text-muted-foreground">Prihod danas (bruto)</div>
-                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
-                        {{ money(stats.revenue_today_gross) }}
-                    </div>
-                    <div class="mt-2 text-xs text-muted-foreground">
-                        NET: <span class="tabular-nums text-foreground/80">{{ money(stats.revenue_today_net) }}</span>
-                    </div>
-                </div>
+                <div
+                    v-for="c in statCards"
+                    :key="c.key"
+                    class="rounded border border-border bg-card p-4 card-elev"
+                >
+                    <div class="text-xs text-muted-foreground">{{ c.title }}</div>
 
-                <div class="rounded border border-border bg-card p-4">
-                    <div class="text-xs text-muted-foreground">Narudžbe</div>
                     <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
-                        {{ number(stats.orders) }}
+                        {{ c.value() }}
                     </div>
-                    <div class="mt-2 text-xs text-muted-foreground">
-                        Pending: <span class="tabular-nums text-foreground/80">{{ number(stats.pending_orders) }}</span>
-                    </div>
-                </div>
 
-                <div class="rounded border border-border bg-card p-4">
-                    <div class="text-xs text-muted-foreground">Plaćanja</div>
-                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
-                        {{ number(stats.payments) }}
+                    <div v-if="c.sublabel && c.subvalue" class="mt-2 text-xs text-muted-foreground">
+                        {{ c.sublabel }}:
+                        <span class="tabular-nums text-foreground/80">{{ c.subvalue() }}</span>
                     </div>
-                    <div class="mt-2 text-xs text-muted-foreground">
-                        Pending: <span class="tabular-nums text-foreground/80">{{ number(stats.pending_payments) }}</span>
-                    </div>
-                </div>
-
-                <div class="rounded border border-border bg-card p-4">
-                    <div class="text-xs text-muted-foreground">Rezervacije</div>
-                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
-                        {{ number(stats.reservations) }}
-                    </div>
-                    <div class="mt-2 text-xs text-muted-foreground">Ukupno</div>
-                </div>
-
-                <div class="rounded border border-border bg-card p-4">
-                    <div class="text-xs text-muted-foreground">Korisnici</div>
-                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
-                        {{ number(stats.users) }}
-                    </div>
-                    <div class="mt-2 text-xs text-muted-foreground">Ukupno</div>
-                </div>
-
-                <div class="rounded border border-border bg-card p-4">
-                    <div class="text-xs text-muted-foreground">Lokacije</div>
-                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
-                        {{ number(stats.locations) }}
-                    </div>
-                    <div class="mt-2 text-xs text-muted-foreground">Aktivne</div>
-                </div>
-
-                <div class="rounded border border-border bg-card p-4">
-                    <div class="text-xs text-muted-foreground">Ormarići / VešMašine</div>
-                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
-                        {{ number(stats.lockers) }}
-                    </div>
-                    <div class="mt-2 text-xs text-muted-foreground">Ukupno</div>
-                </div>
-
-                <div class="rounded border border-border bg-card p-4">
-                    <div class="text-xs text-muted-foreground">Uređaji</div>
-                    <div class="mt-1 text-2xl font-semibold tabular-nums text-foreground">
-                        {{ number(stats.devices) }}
-                    </div>
-                    <div class="mt-2 text-xs text-muted-foreground">Ukupno</div>
                 </div>
             </div>
 
             <!-- Quick links -->
-            <div class="rounded border border-border bg-card p-4">
+            <div class="rounded border border-border bg-card p-4 card-elev">
                 <div class="text-sm font-semibold text-foreground">Brzi linkovi</div>
 
                 <div class="mt-3 flex flex-wrap gap-2">
                     <Link
-                        href="/admin/reservations"
+                        v-for="l in quickLinks"
+                        :key="l.href"
+                        :href="l.href"
                         class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
-                        Rezervacije
-                    </Link>
-                    <Link
-                        href="/admin/orders"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Narudžbe
-                    </Link>
-                    <Link
-                        href="/admin/payments"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Plaćanja
-                    </Link>
-                    <Link
-                        href="/admin/locations"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Lokacije
-                    </Link>
-                    <Link
-                        href="/admin/lockers"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Ormarići
-                    </Link>
-                    <Link
-                        href="/admin/devices"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Uređaji
-                    </Link>
-                    <Link
-                        href="/admin/services"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Usluge
-                    </Link>
-                    <Link
-                        href="/admin/tariffs"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Tarife
-                    </Link>
-                    <Link
-                        href="/admin/pages"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Stranice
-                    </Link>
-                    <Link
-                        href="/admin/settings/roles"
-                        class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                        Uloge & prava
+                        {{ l.label }}
                     </Link>
                 </div>
 
                 <div class="mt-3 text-xs text-muted-foreground">
-                    * Ako ne vidiš brojke, provjeri da controller za dashboard šalje <code class="rounded bg-muted px-1 py-0.5">stats</code> u Inertia props.
+                    * Ako ne vidiš brojke, provjeri da controller za dashboard šalje
+                    <code class="rounded bg-muted px-1 py-0.5">stats</code>
+                    u Inertia props.
                 </div>
             </div>
         </div>
     </AdminLayout>
 </template>
-

@@ -9,14 +9,13 @@ type Ability = { id: number; name: string; title: string | null; options?: any }
 const props = defineProps<{
     roles: Role[];
     abilities: Ability[];
-    allowed: Record<number, Record<number, boolean>>; // roleId -> abilityId -> true
+    allowed: Record<number, Record<number, boolean>>;
     canManagePermissions: boolean;
 }>();
 
 const groupKeyFor = (a: Ability) => {
     const opt = a.options as any;
     if (opt && (opt.group || opt.group_name)) return (opt.group || opt.group_name) as string;
-    // default grouping by prefix before '.' (e.g. reservations.view -> reservations)
     const name = a.name || '';
     const i = name.indexOf('.');
     return i > 0 ? name.slice(0, i) : 'other';
@@ -54,7 +53,7 @@ const abilityGroups = (() => {
         .sort((a, b) => a.label.localeCompare(b.label));
 })();
 
-// build matrix for form
+// init matrix
 const matrixInit: Record<number, Record<number, boolean>> = {};
 for (const r of props.roles) {
     matrixInit[r.id] = {};
@@ -63,22 +62,15 @@ for (const r of props.roles) {
     }
 }
 
-const form = useForm({
-    matrix: matrixInit,
-});
-
-const abilityForm = useForm({
-    name: '',
-    title: '',
-});
+const form = useForm({ matrix: matrixInit });
+const abilityForm = useForm({ name: '', title: '' });
 
 const isSaving = ref(false);
 const savedOk = ref(false);
 
 const openGroups = ref<Record<string, boolean>>({});
-for (const g of abilityGroups) {
-    openGroups.value[g.key] = true;
-}
+for (const g of abilityGroups) openGroups.value[g.key] = true;
+
 const toggleGroup = (key: string) => {
     openGroups.value[key] = !openGroups.value[key];
 };
@@ -108,97 +100,157 @@ const queueSave = () => {
 const createAbility = () => {
     abilityForm.post('/admin/settings/roles/abilities', {
         preserveScroll: true,
-        onSuccess: () => {
-            abilityForm.reset();
-        },
+        onSuccess: () => abilityForm.reset(),
     });
 };
+
+const roleLabel = (r: Role) => r.title || r.name;
 </script>
 
 <template>
     <AdminLayout title="Postavke · Uloge i odobrenja">
         <div class="space-y-4">
-            <div class="rounded border p-4" v-if="canManagePermissions">
-                <div class="mb-3 text-sm font-medium">Dodaj novo odobrenje</div>
+            <!-- Add ability -->
+            <section
+                v-if="canManagePermissions"
+                class="rounded border border-border bg-card p-4 card-elev"
+            >
+                <div class="mb-3">
+                    <div class="text-sm font-semibold text-foreground">
+                        Dodaj novo odobrenje
+                    </div>
+                    <div class="text-xs text-muted-foreground">
+                        Npr. <span class="font-mono">reservations.view</span>
+                    </div>
+                </div>
 
                 <form @submit.prevent="createAbility" class="grid gap-3 md:grid-cols-3">
-                    <div class="md:col-span-1">
-                        <label class="block text-xs text-gray-500 mb-1">Name (slug)</label>
-                        <input v-model="abilityForm.name" class="w-full rounded border px-3 py-2 text-sm" placeholder="npr. reservations.view" />
-                        <div v-if="abilityForm.errors.name" class="mt-1 text-xs text-red-600">{{ abilityForm.errors.name }}</div>
+                    <div>
+                        <label class="mb-1 block text-xs font-medium text-muted-foreground">
+                            Name (slug)
+                        </label>
+                        <input
+                            v-model="abilityForm.name"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                        />
+                        <div v-if="abilityForm.errors.name" class="mt-1 text-xs text-rose-600">
+                            {{ abilityForm.errors.name }}
+                        </div>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-xs text-gray-500 mb-1">Title</label>
-                        <input v-model="abilityForm.title" class="w-full rounded border px-3 py-2 text-sm" placeholder="npr. View reservations" />
-                        <div v-if="abilityForm.errors.title" class="mt-1 text-xs text-red-600">{{ abilityForm.errors.title }}</div>
+                        <label class="mb-1 block text-xs font-medium text-muted-foreground">
+                            Title
+                        </label>
+                        <input
+                            v-model="abilityForm.title"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                        />
+                        <div v-if="abilityForm.errors.title" class="mt-1 text-xs text-rose-600">
+                            {{ abilityForm.errors.title }}
+                        </div>
                     </div>
 
                     <div class="md:col-span-3 flex items-center gap-3">
-                        <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-sm text-white" :disabled="abilityForm.processing">
+                        <button
+                            type="submit"
+                            class="rounded border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-muted"
+                            :disabled="abilityForm.processing"
+                        >
                             Dodaj
                         </button>
-                        <span v-if="abilityForm.recentlySuccessful" class="text-sm text-green-700">Dodano.</span>
+                        <span
+                            v-if="abilityForm.recentlySuccessful"
+                            class="text-sm text-emerald-600"
+                        >
+                            Dodano.
+                        </span>
                     </div>
                 </form>
+            </section>
+
+            <!-- Save status -->
+            <div class="text-sm">
+                <span v-if="isSaving" class="text-muted-foreground">Spremam…</span>
+                <span v-else-if="savedOk" class="text-emerald-600">Spremljeno</span>
+                <span v-else class="text-muted-foreground">
+                    Promjene se spremaju automatski
+                </span>
             </div>
 
-            <div class="flex items-center justify-between">
-                <div class="text-sm text-gray-500">
-                    <span v-if="isSaving">Spremam...</span>
-                    <span v-else-if="savedOk">Spremljeno.</span>
-                </div>
-            </div>
-
-            <div class="overflow-auto rounded border">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-900 sticky top-0 z-10">
-                        <tr>
-                            <th class="px-3 py-2 text-left">Odobrenje</th>
-                            <th v-for="r in roles" :key="r.id" class="px-3 py-2 text-center whitespace-nowrap">
-                                {{ r.title || r.name }}
-                            </th>
-                        </tr>
+            <!-- Matrix -->
+            <div class="overflow-auto rounded border border-border bg-card card-elev">
+                <table class="min-w-full text-sm text-foreground">
+                    <thead class="sticky top-0 bg-muted/70 backdrop-blur">
+                    <tr>
+                        <th
+                            class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                        >
+                            Odobrenje
+                        </th>
+                        <th
+                            v-for="r in roles"
+                            :key="r.id"
+                            class="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                        >
+                            {{ roleLabel(r) }}
+                        </th>
+                    </tr>
                     </thead>
 
                     <tbody>
-                        <template v-for="g in abilityGroups" :key="g.key">
-                            <tr class="bg-gray-900/30 border-t">
-                                <td class="px-3 py-2" :colspan="roles.length + 1">
-                                    <button
-                                        type="button"
-                                        class="flex w-full items-center justify-between text-left"
-                                        @click="toggleGroup(g.key)"
-                                    >
-                                        <span class="font-medium text-gray-200">
+                    <template v-for="g in abilityGroups" :key="g.key">
+                        <tr class="border-t border-border/60 bg-muted/20">
+                            <td :colspan="roles.length + 1" class="px-3 py-2">
+                                <button
+                                    type="button"
+                                    class="flex w-full items-center justify-between"
+                                    @click="toggleGroup(g.key)"
+                                >
+                                        <span class="font-semibold">
                                             {{ g.label }}
-                                            <span class="ml-2 text-xs text-gray-500">({{ g.abilities.length }})</span>
                                         </span>
-                                        <span class="text-xs text-gray-500">
+                                    <span class="text-xs text-muted-foreground">
                                             {{ openGroups[g.key] ? 'Sakrij' : 'Prikaži' }}
                                         </span>
-                                    </button>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <template v-if="openGroups[g.key]">
+                            <tr
+                                v-for="a in g.abilities"
+                                :key="a.id"
+                                class="border-t border-border/60 even:bg-muted/30 hover:bg-muted/50"
+                            >
+                                <td class="px-3 py-2">
+                                    <div class="font-medium">
+                                        {{ a.title || a.name }}
+                                    </div>
+                                    <div class="text-xs font-mono text-muted-foreground">
+                                        {{ a.name }}
+                                    </div>
                                 </td>
-                            </tr>
 
-                            <template v-if="openGroups[g.key]">
-                                <tr v-for="a in g.abilities" :key="a.id" class="border-t">
-                                    <td class="px-3 py-2">
-                                        <div class="font-medium">{{ a.title || a.name }}</div>
-                                        <div class="text-xs text-gray-500">{{ a.name }}</div>
-                                    </td>
-
-                                    <td v-for="r in roles" :key="r.id" class="px-3 py-2 text-center">
+                                <td
+                                    v-for="r in roles"
+                                    :key="r.id"
+                                    class="px-3 py-2 text-center"
+                                >
+                                    <label
+                                        class="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background hover:bg-muted"
+                                    >
                                         <input
                                             type="checkbox"
                                             v-model="form.matrix[r.id][a.id]"
-                                            class="h-4 w-4"
+                                            class="h-4 w-4 accent-[var(--foreground)]"
                                             @change="queueSave"
                                         />
-                                    </td>
-                                </tr>
-                            </template>
+                                    </label>
+                                </td>
+                            </tr>
                         </template>
+                    </template>
                     </tbody>
                 </table>
             </div>

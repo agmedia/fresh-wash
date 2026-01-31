@@ -1,216 +1,266 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
-type Payment = {
+type Order = {
     id: number;
-    provider: string;
-    status: string;
-    amount: string | number;
+    code: string;
+    status: 'pending' | 'paid' | 'cancelled' | 'refunded' | string;
+    note?: string | null;
     currency: string;
-    provider_ref?: string | null;
-    paid_at?: string | null;
-    payload?: any;
-    order?: {
-        id: number;
-        code: string;
-        user?: { email: string } | null;
-    } | null;
+    total_net: string | number;
+    vat_rate: string | number;
+    total_gross: string | number;
+    user?: { email: string; first_name?: string | null; last_name?: string | null; name?: string | null } | null;
+    location?: { name: string } | null;
 };
 
-const props = defineProps<{
-    payment: Payment;
+const { order, statuses } = defineProps<{
+    order: Order;
     statuses: string[];
-    providers: string[];
 }>();
 
-const payloadJson = ref(
-    props.payment.payload ? JSON.stringify(props.payment.payload, null, 2) : '',
-);
-
 const form = useForm({
-    provider: props.payment.provider ?? 'offline',
-    status: props.payment.status ?? 'pending',
-    amount: String(props.payment.amount ?? '0'),
-    currency: props.payment.currency ?? 'EUR',
-    provider_ref: props.payment.provider_ref ?? '',
-    paid_at: props.payment.paid_at ?? '',
-    payload: props.payment.payload ?? null,
+    status: order.status ?? 'pending',
+    note: order.note ?? '',
+    currency: order.currency ?? 'EUR',
+    total_net: String(order.total_net ?? '0'),
+    vat_rate: String(order.vat_rate ?? '25'),
+    total_gross: String(order.total_gross ?? '0'),
 });
 
 const processing = computed(() => form.processing);
+const showHref = computed(() => `/admin/orders/${order.id}`);
+const backHref = '/admin/orders';
+
+const userLabel = computed(() => {
+    const u = order.user;
+    if (!u) return '-';
+    const full = [u.first_name, u.last_name].filter(Boolean).join(' ').trim();
+    return full || u.name || u.email;
+});
 
 const submit = () => {
-    form.transform((data) => {
-        let payload: any = null;
-        if (payloadJson.value?.trim()) {
-            try {
-                payload = JSON.parse(payloadJson.value);
-            } catch (e) {
-                // ako je neispravan JSON, pošalji null i prikaži grešku lokalno
-                payload = null;
-            }
-        }
-        return { ...data, payload };
-    }).put(`/admin/payments/${props.payment.id}`);
+    form.put(`/admin/orders/${order.id}`, { preserveScroll: true });
 };
+
+/** UX: auto-gross */
+const grossAuto = ref(true);
+
+const toNum = (v: unknown) => {
+    const n = Number(String(v ?? '').replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+};
+
+const calcGross = () => {
+    const net = toNum(form.total_net);
+    const vat = toNum(form.vat_rate);
+    const gross = net * (1 + vat / 100);
+    // 2 decimals
+    return (Math.round(gross * 100) / 100).toFixed(2);
+};
+
+watch(
+    () => [form.total_net, form.vat_rate],
+    () => {
+        if (grossAuto) form.total_gross = calcGross();
+    },
+    { immediate: true }
+);
+
+/** UX: unsaved indicator */
+const initial = JSON.stringify(form.data());
+const hasChanges = computed(() => JSON.stringify(form.data()) !== initial);
 </script>
 
 <template>
-    <AdminLayout :title="`Uredi plaćanje #${payment.id}`">
-        <form @submit.prevent="submit" class="max-w-3xl space-y-6">
-            <div class="space-y-1 rounded border bg-white p-4 text-sm">
-                <div>
-                    <strong>Order:</strong> {{ payment.order?.code ?? '-' }}
-                </div>
-                <div>
-                    <strong>Email:</strong>
-                    {{ payment.order?.user?.email ?? '-' }}
-                </div>
-            </div>
-
-            <div class="space-y-4 rounded border bg-white p-4">
-                <div class="grid gap-4 md:grid-cols-2">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium"
-                            >Provider</label
-                        >
-                        <select
-                            v-model="form.provider"
-                            class="w-full rounded border px-3 py-2 text-sm"
-                        >
-                            <option v-for="p in providers" :key="p" :value="p">
-                                {{ p }}
-                            </option>
-                        </select>
-                        <div
-                            v-if="form.errors.provider"
-                            class="text-sm text-red-600"
-                        >
-                            {{ form.errors.provider }}
+    <AdminLayout :title="`Uredi narudžbu #${order.id}`">
+        <div class="max-w-3xl space-y-6">
+            <!-- Sticky actions -->
+            <div class="sticky top-3 z-20">
+                <div class="flex flex-wrap items-center justify-between gap-3 rounded border border-border bg-card p-3 card-elev">
+                    <div class="min-w-0">
+                        <div class="text-sm font-semibold text-foreground truncate">
+                            {{ order.code }}
+                        </div>
+                        <div class="text-xs text-muted-foreground">
+                            {{ userLabel }} · {{ order.location?.name ?? '-' }}
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium">Status</label>
+                    <div class="flex items-center gap-3">
+                        <span v-if="hasChanges" class="text-xs text-amber-700 dark:text-amber-300">
+                            Nespremjene promjene
+                        </span>
+
+                        <button
+                            type="button"
+                            @click="submit"
+                            class="rounded border border-border bg-primary px-4 py-2 text-sm font-medium text-primary-foreground
+                                   hover:opacity-90 disabled:opacity-60"
+                            :disabled="processing"
+                        >
+                            {{ processing ? 'Spremanje…' : 'Spremi' }}
+                        </button>
+
+                        <a :href="showHref" class="text-sm text-muted-foreground hover:text-foreground">
+                            Pregled
+                        </a>
+
+                        <a :href="backHref" class="text-sm text-muted-foreground hover:text-foreground">
+                            Natrag
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <form
+                @submit.prevent="submit"
+                class="rounded border border-border bg-card p-5 card-elev space-y-6"
+            >
+                <!-- Status -->
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-foreground">Status</label>
                         <select
                             v-model="form.status"
-                            class="w-full rounded border px-3 py-2 text-sm"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-ring/40"
                         >
                             <option v-for="s in statuses" :key="s" :value="s">
                                 {{ s }}
                             </option>
                         </select>
-                        <div
-                            v-if="form.errors.status"
-                            class="text-sm text-red-600"
-                        >
+                        <p v-if="form.errors.status" class="text-xs text-rose-600">
                             {{ form.errors.status }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid gap-4 md:grid-cols-3">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium">Iznos</label>
-                        <input
-                            v-model="form.amount"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            class="w-full rounded border px-3 py-2 text-sm"
-                        />
-                        <div
-                            v-if="form.errors.amount"
-                            class="text-sm text-red-600"
-                        >
-                            {{ form.errors.amount }}
-                        </div>
+                        </p>
+                        <p class="text-xs text-muted-foreground">
+                            Promjena statusa ne mijenja iznose, samo evidenciju narudžbe.
+                        </p>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium">Valuta</label>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-foreground">Valuta</label>
                         <input
                             v-model="form.currency"
                             maxlength="3"
-                            class="w-full rounded border px-3 py-2 text-sm"
+                            class="w-full rounded border border-input bg-background px-3 py-2 text-sm uppercase
+                                   focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            placeholder="EUR"
                         />
-                        <div
-                            v-if="form.errors.currency"
-                            class="text-sm text-red-600"
-                        >
+                        <p v-if="form.errors.currency" class="text-xs text-rose-600">
                             {{ form.errors.currency }}
+                        </p>
+                        <p class="text-xs text-muted-foreground">
+                            ISO kod (npr. EUR, HRK).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Totals -->
+                <div class="rounded border border-border bg-card p-4">
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-sm font-semibold text-foreground">Iznosi</div>
+                            <div class="text-xs text-muted-foreground">Net, PDV i brutto.</div>
                         </div>
+
+                        <label class="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                            <input
+                                type="checkbox"
+                                v-model="grossAuto"
+                                class="h-4 w-4 rounded border border-input bg-background"
+                            />
+                            Auto izračun brutto
+                        </label>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium">Paid at</label>
-                        <input
-                            v-model="form.paid_at"
-                            type="datetime-local"
-                            class="w-full rounded border px-3 py-2 text-sm"
-                        />
-                        <div
-                            v-if="form.errors.paid_at"
-                            class="text-sm text-red-600"
-                        >
-                            {{ form.errors.paid_at }}
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Total net</label>
+                            <input
+                                v-model="form.total_net"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                                       focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.total_net" class="text-xs text-rose-600">
+                                {{ form.errors.total_net }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">PDV %</label>
+                            <input
+                                v-model="form.vat_rate"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="100"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                                       focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.vat_rate" class="text-xs text-rose-600">
+                                {{ form.errors.vat_rate }}
+                            </p>
+                            <p class="text-xs text-muted-foreground">npr. 25</p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Total gross</label>
+                            <input
+                                v-model="form.total_gross"
+                                :readonly="grossAuto"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                                       focus:outline-none focus:ring-2 focus:ring-ring/40
+                                       disabled:opacity-60"
+                            />
+                            <p v-if="form.errors.total_gross" class="text-xs text-rose-600">
+                                {{ form.errors.total_gross }}
+                            </p>
+                            <p v-if="grossAuto" class="text-xs text-muted-foreground">
+                                Brutto se računa: net × (1 + PDV/100)
+                            </p>
+                            <p v-else class="text-xs text-muted-foreground">
+                                Ručno uređivanje uključeno.
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium"
-                        >Provider ref</label
-                    >
-                    <input
-                        v-model="form.provider_ref"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.provider_ref"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.provider_ref }}
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium"
-                        >Payload (JSON)</label
-                    >
+                <!-- Note -->
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-foreground">Napomena</label>
                     <textarea
-                        v-model="payloadJson"
-                        rows="8"
-                        class="w-full rounded border px-3 py-2 font-mono text-xs"
+                        v-model="form.note"
+                        rows="4"
+                        class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                               focus:outline-none focus:ring-2 focus:ring-ring/40"
+                        placeholder="Interna napomena..."
                     />
-                    <div class="text-xs text-gray-500">
-                        Ako JSON nije validan, payload će se poslati kao null.
-                    </div>
-                    <div
-                        v-if="form.errors.payload"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.payload }}
-                    </div>
+                    <p v-if="form.errors.note" class="text-xs text-rose-600">
+                        {{ form.errors.note }}
+                    </p>
                 </div>
 
-                <div class="flex gap-3">
+                <!-- Bottom actions (for long pages) -->
+                <div class="flex items-center justify-end gap-3 pt-2">
                     <button
                         type="submit"
-                        class="rounded bg-blue-600 px-4 py-2 text-sm text-white"
+                        class="rounded border border-border bg-primary px-4 py-2 text-sm font-medium text-primary-foreground
+                               hover:opacity-90 disabled:opacity-60"
                         :disabled="processing"
                     >
-                        Spremi
+                        {{ processing ? 'Spremanje…' : 'Spremi promjene' }}
                     </button>
-                    <a
-                        :href="`/admin/payments/${payment.id}`"
-                        class="text-sm text-blue-600"
-                        >Pregled</a
-                    >
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </AdminLayout>
 </template>

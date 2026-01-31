@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
-import { Link } from '@inertiajs/vue3';
+import { router, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { Button } from '@/components/ui/button';
 
 interface Location {
     id: number;
@@ -26,42 +24,63 @@ const search = ref(props.filters.search ?? '');
 const submitSearch = () => {
     router.get(
         '/admin/locations',
-        { search: search.value },
+        { search: search.value || undefined },
         { preserveState: true, replace: true },
     );
+};
+
+const resetFilters = () => {
+    search.value = '';
+    router.get('/admin/locations', {}, { preserveState: true, replace: true });
 };
 </script>
 
 <template>
     <AdminLayout title="Lokacije">
-        <div class="mb-4 flex items-center justify-between gap-3">
+        <!-- Top bar -->
+        <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <!-- Search -->
-            <form @submit.prevent="submitSearch" class="flex items-center gap-2">
-                <input
-                    v-model="search"
-                    class="w-72 rounded border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
-                    placeholder="Traži..."
-                />
+            <form @submit.prevent="submitSearch" class="flex w-full items-center gap-2 lg:w-auto">
+                <div class="relative w-full lg:w-96">
+                    <input
+                        v-model="search"
+                        class="w-full rounded border border-input bg-background px-3 py-2 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                        placeholder="Traži (naziv, grad, pošt. broj)..."
+                    />
+                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        ⌕
+                    </span>
+                </div>
+
                 <button
-                    class="rounded border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    type="submit"
+                    class="rounded border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
                 >
                     Traži
+                </button>
+
+                <button
+                    type="button"
+                    class="rounded border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    @click="resetFilters"
+                >
+                    Reset
                 </button>
             </form>
 
             <!-- New -->
             <Link
                 href="/admin/locations/create"
-                class="rounded border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+                class="rounded border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
             >
                 Nova lokacija
             </Link>
         </div>
 
         <!-- Table -->
-        <div class="overflow-auto rounded border border-border bg-card">
+        <div class="overflow-auto rounded border border-border bg-card card-elev">
             <table class="min-w-full text-sm text-foreground">
-                <thead class="bg-muted/60">
+                <thead class="sticky top-0 z-10 bg-muted/70 backdrop-blur">
                 <tr>
                     <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Naziv
@@ -73,9 +92,11 @@ const submitSearch = () => {
                         Pošt. broj
                     </th>
                     <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Aktivna
+                        Status
                     </th>
-                    <th class="px-3 py-2"></th>
+                    <th class="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Akcije
+                    </th>
                 </tr>
                 </thead>
 
@@ -85,15 +106,21 @@ const submitSearch = () => {
                     :key="l.id"
                     class="border-t border-border/60 even:bg-muted/30 hover:bg-muted/50"
                 >
-                    <td class="px-3 py-2 font-medium">
-                        {{ l.name }}
-                    </td>
                     <td class="px-3 py-2">
-                        {{ l.city }}
+                        <div class="max-w-[320px] truncate font-medium">
+                            {{ l.name }}
+                        </div>
+                        <div class="text-xs text-muted-foreground">#{{ l.id }}</div>
                     </td>
+
+                    <td class="px-3 py-2">
+                        {{ l.city ?? '-' }}
+                    </td>
+
                     <td class="px-3 py-2 tabular-nums">
-                        {{ l.postal_code }}
+                        {{ l.postal_code ?? '-' }}
                     </td>
+
                     <td class="px-3 py-2">
                             <span
                                 class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium"
@@ -106,10 +133,11 @@ const submitSearch = () => {
                                 {{ l.is_active ? 'Aktivna' : 'Neaktivna' }}
                             </span>
                     </td>
+
                     <td class="px-3 py-2 text-right">
                         <Link
                             :href="`/admin/locations/${l.id}/edit`"
-                            class="text-primary hover:underline"
+                            class="inline-flex items-center rounded border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted"
                         >
                             Uredi
                         </Link>

@@ -17,223 +17,274 @@ interface User {
     whatsapp_opt_in: boolean;
 }
 
-const props = defineProps<{
-    user: User;
-}>();
+const { user } = defineProps<{ user: User }>();
 
 const form = useForm({
-    first_name: props.user.first_name ?? '',
-    last_name: props.user.last_name ?? '',
-    email: props.user.email ?? '',
-    password: '', // opcionalno: promjena lozinke
-    address_line1: props.user.address_line1 ?? '',
-    address_line2: props.user.address_line2 ?? '',
-    postal_code: props.user.postal_code ?? '',
-    city: props.user.city ?? '',
-    country_code: props.user.country_code ?? 'HR',
-    phone: props.user.phone ?? '',
-    whatsapp_opt_in: props.user.whatsapp_opt_in ?? false,
+    first_name: user.first_name ?? '',
+    last_name: user.last_name ?? '',
+    email: user.email ?? '',
+    password: '',
+
+    address_line1: user.address_line1 ?? '',
+    address_line2: user.address_line2 ?? '',
+    postal_code: user.postal_code ?? '',
+    city: user.city ?? '',
+    country_code: user.country_code ?? 'HR',
+    phone: user.phone ?? '',
+    whatsapp_opt_in: user.whatsapp_opt_in ?? false,
 });
 
 const processing = computed(() => form.processing);
 
 const submit = () => {
-    form.put(`/admin/users/${props.user.id}`);
+    form.put(`/admin/users/${user.id}`, { preserveScroll: true });
 };
+
+const showHref = computed(() => `/admin/users/${user.id}`);
+const backHref = '/admin/users';
+
+const headerTitle = computed(() => {
+    const full = `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim();
+    return full || user.email;
+});
 </script>
 
 <template>
     <AdminLayout :title="`Uredi korisnika #${user.id}`">
-        <form @submit.prevent="submit" class="max-w-3xl space-y-6">
-            <div class="grid gap-4 md:grid-cols-2">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Ime</label>
-                    <input
-                        v-model="form.first_name"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.first_name"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.first_name }}
+        <div class="max-w-3xl space-y-6">
+            <!-- Sticky header -->
+            <div class="sticky top-3 z-20">
+                <div class="flex flex-wrap items-center justify-between gap-3 rounded border border-border bg-card p-3 card-elev">
+                    <div class="min-w-0">
+                        <div class="text-sm font-semibold text-foreground truncate">
+                            {{ headerTitle }}
+                        </div>
+                        <div class="text-xs text-muted-foreground">
+                            {{ user.email }}
+                        </div>
                     </div>
-                </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Prezime</label>
-                    <input
-                        v-model="form.last_name"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.last_name"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.last_name }}
-                    </div>
-                </div>
-            </div>
+                    <div class="flex items-center gap-3">
+                        <button
+                            type="button"
+                            @click="submit"
+                            class="rounded border border-border bg-primary px-4 py-2 text-sm font-medium text-primary-foreground
+                                   hover:opacity-90 disabled:opacity-60"
+                            :disabled="processing"
+                        >
+                            {{ processing ? 'Spremanje…' : 'Spremi' }}
+                        </button>
 
-            <div class="grid gap-4 md:grid-cols-2">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Email</label>
-                    <input
-                        v-model="form.email"
-                        type="email"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div v-if="form.errors.email" class="text-sm text-red-600">
-                        {{ form.errors.email }}
-                    </div>
-                </div>
+                        <a :href="showHref" class="text-sm text-muted-foreground hover:text-foreground">
+                            Pregled
+                        </a>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium"
-                        >Nova lozinka (opcionalno)</label
-                    >
-                    <input
-                        v-model="form.password"
-                        type="password"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.password"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.password }}
+                        <a :href="backHref" class="text-sm text-muted-foreground hover:text-foreground">
+                            Natrag
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="grid gap-4 md:grid-cols-2">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Adresa 1</label>
-                    <input
-                        v-model="form.address_line1"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.address_line1"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.address_line1 }}
+            <form
+                @submit.prevent="submit"
+                class="rounded border border-border bg-card p-5 card-elev space-y-6"
+            >
+                <!-- Basic -->
+                <section class="space-y-4">
+                    <div>
+                        <div class="text-sm font-semibold text-foreground">Osnovno</div>
+                        <div class="text-xs text-muted-foreground">Ime, prezime i kontakt.</div>
                     </div>
-                </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Adresa 2</label>
-                    <input
-                        v-model="form.address_line2"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.address_line2"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.address_line2 }}
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Ime</label>
+                            <input
+                                v-model="form.first_name"
+                                type="text"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground
+                                       placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.first_name" class="text-xs text-rose-600">
+                                {{ form.errors.first_name }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Prezime</label>
+                            <input
+                                v-model="form.last_name"
+                                type="text"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground
+                                       placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.last_name" class="text-xs text-rose-600">
+                                {{ form.errors.last_name }}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="grid gap-4 md:grid-cols-3">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium"
-                        >Poštanski broj</label
-                    >
-                    <input
-                        v-model="form.postal_code"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.postal_code"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.postal_code }}
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Email</label>
+                            <input
+                                v-model="form.email"
+                                type="email"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground
+                                       placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.email" class="text-xs text-rose-600">
+                                {{ form.errors.email }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Nova lozinka (opcionalno)</label>
+                            <input
+                                v-model="form.password"
+                                type="password"
+                                autocomplete="new-password"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground
+                                       placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                                placeholder="Ostavi prazno ako se ne mijenja"
+                            />
+                            <p v-if="form.errors.password" class="text-xs text-rose-600">
+                                {{ form.errors.password }}
+                            </p>
+                            <p class="text-xs text-muted-foreground">
+                                Ako ostaviš prazno, lozinka ostaje ista.
+                            </p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="space-y-2 md:col-span-2">
-                    <label class="block text-sm font-medium">Grad</label>
-                    <input
-                        v-model="form.city"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div v-if="form.errors.city" class="text-sm text-red-600">
-                        {{ form.errors.city }}
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Telefon</label>
+                            <input
+                                v-model="form.phone"
+                                type="text"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm text-foreground
+                                       placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.phone" class="text-xs text-rose-600">
+                                {{ form.errors.phone }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">WhatsApp opt-in</label>
+                            <div class="flex items-center gap-2 pt-1">
+                                <input
+                                    id="wa"
+                                    v-model="form.whatsapp_opt_in"
+                                    type="checkbox"
+                                    class="h-4 w-4 rounded border border-input bg-background"
+                                />
+                                <label for="wa" class="text-sm text-foreground">
+                                    Dozvola za WhatsApp poruke
+                                </label>
+                            </div>
+                            <p v-if="form.errors.whatsapp_opt_in" class="text-xs text-rose-600">
+                                {{ form.errors.whatsapp_opt_in }}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <div class="grid gap-4 md:grid-cols-2">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium"
-                        >Država (ISO2)</label
+                <!-- Address -->
+                <section class="space-y-4">
+                    <div>
+                        <div class="text-sm font-semibold text-foreground">Adresa</div>
+                        <div class="text-xs text-muted-foreground">Podaci za dostavu i evidenciju.</div>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Adresa 1</label>
+                            <input
+                                v-model="form.address_line1"
+                                type="text"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                                       focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.address_line1" class="text-xs text-rose-600">
+                                {{ form.errors.address_line1 }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Adresa 2</label>
+                            <input
+                                v-model="form.address_line2"
+                                type="text"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                                       focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.address_line2" class="text-xs text-rose-600">
+                                {{ form.errors.address_line2 }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Poštanski broj</label>
+                            <input
+                                v-model="form.postal_code"
+                                type="text"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                                       focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.postal_code" class="text-xs text-rose-600">
+                                {{ form.errors.postal_code }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1.5 md:col-span-2">
+                            <label class="text-sm font-medium text-foreground">Grad</label>
+                            <input
+                                v-model="form.city"
+                                type="text"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm
+                                       focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.city" class="text-xs text-rose-600">
+                                {{ form.errors.city }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-foreground">Država (ISO2)</label>
+                            <input
+                                v-model="form.country_code"
+                                maxlength="2"
+                                type="text"
+                                class="w-full rounded border border-input bg-background px-3 py-2 text-sm uppercase
+                                       focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                            <p v-if="form.errors.country_code" class="text-xs text-rose-600">
+                                {{ form.errors.country_code }}
+                            </p>
+                            <p class="text-xs text-muted-foreground">npr. HR</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bottom actions -->
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button
+                        type="submit"
+                        class="rounded border border-border bg-primary px-4 py-2 text-sm font-medium text-primary-foreground
+                               hover:opacity-90 disabled:opacity-60"
+                        :disabled="processing"
                     >
-                    <input
-                        v-model="form.country_code"
-                        maxlength="2"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div
-                        v-if="form.errors.country_code"
-                        class="text-sm text-red-600"
-                    >
-                        {{ form.errors.country_code }}
-                    </div>
+                        {{ processing ? 'Spremanje…' : 'Spremi promjene' }}
+                    </button>
                 </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Telefon</label>
-                    <input
-                        v-model="form.phone"
-                        type="text"
-                        class="w-full rounded border px-3 py-2 text-sm"
-                    />
-                    <div v-if="form.errors.phone" class="text-sm text-red-600">
-                        {{ form.errors.phone }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <input
-                    id="wa"
-                    v-model="form.whatsapp_opt_in"
-                    type="checkbox"
-                    class="h-4 w-4"
-                />
-                <label for="wa" class="text-sm">WhatsApp opt-in</label>
-                <div
-                    v-if="form.errors.whatsapp_opt_in"
-                    class="text-sm text-red-600"
-                >
-                    {{ form.errors.whatsapp_opt_in }}
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <button
-                    type="submit"
-                    class="rounded bg-blue-600 px-4 py-2 text-sm text-white"
-                    :disabled="processing"
-                >
-                    Spremi promjene
-                </button>
-
-                <a
-                    :href="`/admin/users/${user.id}`"
-                    class="text-sm text-blue-600"
-                    >Pregled</a
-                >
-            </div>
-        </form>
+            </form>
+        </div>
     </AdminLayout>
 </template>

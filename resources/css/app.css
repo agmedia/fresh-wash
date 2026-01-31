@@ -86,9 +86,9 @@
 @layer utilities {
     body,
     html {
-        --font-sans:
-            "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif,
-            "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-sans:
+    "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     }
 }
 
@@ -175,7 +175,7 @@
 }
 @layer base {
     body {
-        @apply text-sm leading-5;
+        @apply text-base leading-6;
         font-feature-settings: "kern" 1;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
@@ -190,3 +190,13 @@
         @apply font-semibold;
     }
 }
+
+@layer base {
+    input[type='checkbox'],
+    input[type='radio'] {
+        appearance: auto;
+        accent-color: var(--foreground);
+    }
+}
+
+
