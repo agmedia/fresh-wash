@@ -47,7 +47,7 @@
                 </a>
 
                 <a
-                    href="{{ route('info.locations.index') }}"
+                    href="/#locations"
                     class="transition
                         {{ $active === 'locations'
                             ? 'text-white'
@@ -64,6 +64,14 @@
                             : 'text-white/80 hover:text-white' }}"
                 >
                     Cjenik
+                </a>
+
+                <a href="/#contact" lass="transition
+                        {{ $active === 'pricing'
+                            ? 'text-white'
+                            : 'text-white/80 hover:text-white' }}">
+                    Kontakt
+
                 </a>
 
                 @auth

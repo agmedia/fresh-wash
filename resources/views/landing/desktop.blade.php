@@ -11,6 +11,17 @@
     STICKY HEADER – SHRINK
     ========================= */
 
+        html {
+            scroll-behavior: smooth;
+        }
+
+        #how,
+        #locations,
+        #contact,
+        #pricing {
+            scroll-margin-top: 2rem;
+        }
+
         /* smooth transitions */
         #site-header,
         #site-header * {
@@ -907,7 +918,7 @@
 
 
     {{-- TESTIMONIALS --}}
-    <section class="py-24 bg-white">
+    <section class="py-24 bg-slate-50">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex items-end justify-between gap-10">
                 <div>
@@ -1087,6 +1098,207 @@
             </div>
         </div>
     </section>
+
+    {{-- CONTACT --}}
+    <section id="contact" class="py-24 bg-slate-50 border-y border-slate-200/60">
+        <div class="max-w-7xl mx-auto px-6">
+
+            {{-- Header --}}
+            <div class="flex items-end justify-between gap-10">
+                <div>
+                    <h2 class="text-4xl font-extrabold tracking-tight text-slate-900">
+                        Kontakt
+                    </h2>
+                    <p class="mt-5 text-lg text-slate-600 max-w-2xl leading-relaxed">
+                        Imaš pitanje oko lokacije, narudžbe ili suradnje? Javi se — odgovorimo brzo.
+                    </p>
+                </div>
+
+                <a href="/?openApp=1"
+                   class="inline-flex items-center gap-3 rounded-2xl bg-blue-600 text-white
+                      px-7 py-3.5 text-base font-semibold hover:bg-blue-700 transition">
+                    Otvori aplikaciju
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="5" y="2" width="14" height="20" rx="2" />
+                        <path d="M12 18h.01" />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="mt-16 grid lg:grid-cols-12 gap-10 items-start">
+
+                {{-- LEFT: Contact details --}}
+                <div class="lg:col-span-5">
+                    <div class="rounded-3xl bg-white border border-slate-200/60 shadow-sm p-8">
+                        <div class="text-xl font-semibold text-slate-900">Podaci za kontakt</div>
+                        <p class="mt-3 text-base text-slate-600 leading-relaxed">
+                            Piši nam ili nazovi. Za hitne situacije u aplikaciji koristi “Podrška”.
+                        </p>
+
+                        <div class="mt-8 space-y-5">
+
+                            {{-- Email --}}
+                            <div class="flex items-start gap-4">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600/10 text-blue-700">
+                                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16v12H4z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7l8 6 8-6"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-slate-900">Email</div>
+                                    <a href="mailto:info@freshwash.hr"
+                                       class="mt-1 inline-flex text-base text-blue-700 font-semibold hover:text-blue-800 transition">
+                                        info@freshwash.hr
+                                    </a>
+                                    <div class="mt-1 text-sm text-slate-500">Odgovor u roku 24h (radnim danom).</div>
+                                </div>
+                            </div>
+
+                            {{-- Phone --}}
+                            <div class="flex items-start gap-4">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600/10 text-indigo-700">
+                                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M22 16.9v3a2 2 0 0 1-2.2 2
+                                             19.8 19.8 0 0 1-8.6-3.1
+                                             19.5 19.5 0 0 1-6-6
+                                             19.8 19.8 0 0 1-3.1-8.6A2 2 0 0 1 4.1 2h3
+                                             a2 2 0 0 1 2 1.7c.1 1 .4 2.5.8 3.4
+                                             a2 2 0 0 1-.4 2.1L8.3 10.4
+                                             a16 16 0 0 0 5.3 5.3l1.2-1.2
+                                             a2 2 0 0 1 2.1-.4c.9.4 2.4.7 3.4.8
+                                             a2 2 0 0 1 1.7 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-slate-900">Telefon</div>
+                                    <a href="tel:+3850000000"
+                                       class="mt-1 inline-flex text-base text-blue-700 font-semibold hover:text-blue-800 transition">
+                                        +385 00 000 000
+                                    </a>
+                                    <div class="mt-1 text-sm text-slate-500">Pon–Pet 9:00–17:00</div>
+                                </div>
+                            </div>
+
+                            {{-- Address --}}
+                            <div class="flex items-start gap-4">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-600/10 text-sky-700">
+                                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z"/>
+                                        <circle cx="12" cy="10" r="2.5"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-slate-900">Adresa</div>
+                                    <div class="mt-1 text-base text-slate-700">
+                                        Ulica i broj, 10000 Zagreb
+                                    </div>
+                                    <a href="https://www.google.com/maps?q=Zagreb"
+                                       target="_blank"
+                                       class="mt-2 inline-flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-800 transition">
+                                        Otvori na karti <span class="opacity-60">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Quick help box --}}
+                        <div class="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                            <div class="text-sm font-semibold text-slate-900">Brza pomoć</div>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+                                Ako si na lokaciji i treba ti hitno otključavanje ili pomoć, otvori aplikaciju i klikni “Podrška”.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- RIGHT: Form --}}
+                <div class="lg:col-span-7">
+                    <div class="rounded-3xl bg-white border border-slate-200/60 shadow-sm p-8">
+                        <div class="flex items-center justify-between gap-6">
+                            <div>
+                                <div class="text-xl font-semibold text-slate-900">Pošalji upit</div>
+                                <div class="mt-2 text-base text-slate-600">Javi nam se — odgovorimo čim prije.</div>
+                            </div>
+                            <span class="text-sm rounded-full bg-emerald-50 text-emerald-700 px-4 py-1.5 border border-emerald-100 font-semibold">
+                            Brz odgovor
+                        </span>
+                        </div>
+
+                        <form class="mt-8 grid grid-cols-2 gap-6"
+                              method="POST"
+                              action="/contact">
+                            @csrf
+
+                            <div class="col-span-1">
+                                <label class="block text-sm font-semibold text-slate-900 mb-2">Ime</label>
+                                <input name="name" required
+                                       class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base
+                                          focus:outline-none focus:ring-4 focus:ring-blue-600/15 focus:border-blue-400"
+                                       placeholder="Npr. Marko" />
+                            </div>
+
+                            <div class="col-span-1">
+                                <label class="block text-sm font-semibold text-slate-900 mb-2">Email</label>
+                                <input name="email" type="email" required
+                                       class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base
+                                          focus:outline-none focus:ring-4 focus:ring-blue-600/15 focus:border-blue-400"
+                                       placeholder="marko@email.com" />
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-semibold text-slate-900 mb-2">Tema</label>
+                                <select name="topic"
+                                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base
+                                           focus:outline-none focus:ring-4 focus:ring-blue-600/15 focus:border-blue-400">
+                                    <option value="narudzba">Narudžba / status</option>
+                                    <option value="lokacije">Lokacije</option>
+                                    <option value="placanje">Plaćanje</option>
+                                    <option value="suradnja">Suradnja (B2B)</option>
+                                    <option value="ostalo">Ostalo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-semibold text-slate-900 mb-2">Poruka</label>
+                                <textarea name="message" rows="5" required
+                                          class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base
+                                             focus:outline-none focus:ring-4 focus:ring-blue-600/15 focus:border-blue-400"
+                                          placeholder="Napiši ukratko što trebaš..."></textarea>
+                            </div>
+
+                            <div class="col-span-2 flex items-center justify-between gap-6">
+                                <div class="text-sm text-slate-500">
+                                    Slanjem forme pristaješ na obradu podataka prema
+                                    <a href="/info/privatnost" class="text-blue-700 font-semibold hover:text-blue-800 transition">
+                                        pravilima privatnosti
+                                    </a>.
+                                </div>
+
+                                <button type="submit"
+                                        class="inline-flex items-center gap-3 rounded-2xl bg-blue-600 text-white
+                                           px-7 py-3.5 text-base font-semibold hover:bg-blue-700 transition">
+                                    Pošalji
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 2L11 13" />
+                                        <path d="M22 2L15 22l-4-9-9-4 20-7z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
     {{-- FINAL CTA --}}
     <section class="py-24 bg-white">
         <div class="max-w-7xl mx-auto px-6">
