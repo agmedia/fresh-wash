@@ -8,18 +8,32 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { logout } from '@/routes';
 import type { User } from '@/types';
-import { Link, router } from '@inertiajs/vue3';
 import { Globe, LogOut, Settings } from 'lucide-vue-next';
 
 interface Props {
     user: User;
 }
 
-const handleLogout = () => {
-    router.flushAll();
-};
-
 defineProps<Props>();
+
+const handleLogout = (e: Event) => {
+    e.preventDefault();
+
+    const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = logout();
+
+    const token = document.createElement('input');
+    token.type = 'hidden';
+    token.name = '_token';
+    token.value = csrf ?? '';
+    form.appendChild(token);
+
+    document.body.appendChild(form);
+    form.submit();
+};
 </script>
 
 <template>
@@ -33,11 +47,11 @@ defineProps<Props>();
 
     <DropdownMenuGroup>
         <!-- SETTINGS -->
-        <DropdownMenuItem :as-child="true">
-            <Link class="block w-full" :href="'/admin/settings/profile'" prefetch as="button">
+        <DropdownMenuItem as-child>
+            <a href="/admin/settings" class="block w-full">
                 <Settings class="mr-2 h-4 w-4" />
-                Settings
-            </Link>
+                Postavke
+            </a>
         </DropdownMenuItem>
 
         <!-- FRONT / INFO WEB -->
@@ -51,18 +65,18 @@ defineProps<Props>();
 
     <DropdownMenuSeparator />
 
-    <!-- LOGOUT -->
-    <DropdownMenuItem :as-child="true">
-        <Link
+    <!-- LOGOUT (native, bez flash/popup) -->
+    <DropdownMenuItem as-child>
+        <button
+            type="button"
             class="block w-full"
-            :href="logout()"
-            method="post"
-            as="button"
             @click="handleLogout"
             data-test="logout-button"
         >
-            <LogOut class="mr-2 h-4 w-4" />
-            Log out
-        </Link>
+            <span class="flex items-center">
+                <LogOut class="mr-2 h-4 w-4" />
+                Log out
+            </span>
+        </button>
     </DropdownMenuItem>
 </template>
