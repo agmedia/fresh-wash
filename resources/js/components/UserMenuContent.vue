@@ -6,8 +6,9 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { logout } from '@/routes';
+import { logout as logoutRoute } from '@/routes';
 import type { User } from '@/types';
+import { Link } from '@inertiajs/vue3';
 import { Globe, LogOut, Settings } from 'lucide-vue-next';
 
 interface Props {
@@ -16,19 +17,30 @@ interface Props {
 
 defineProps<Props>();
 
+const logoutUrl = () => {
+    // logoutRoute može biti function ili već pripremljen objekt/string
+    const res: any = typeof logoutRoute === 'function' ? logoutRoute() : logoutRoute;
+
+    // Najčešći slučaj: string
+    if (typeof res === 'string') return res;
+
+    // Ako je objekt (npr. { href: '/logout' } ili { url: '/logout' })
+    return res?.href ?? res?.url ?? res?.path ?? '/logout';
+};
+
 const handleLogout = (e: Event) => {
     e.preventDefault();
 
-    const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
+    const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
 
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = logout();
+    form.action = logoutUrl();
 
     const token = document.createElement('input');
     token.type = 'hidden';
     token.name = '_token';
-    token.value = csrf ?? '';
+    token.value = csrf;
     form.appendChild(token);
 
     document.body.appendChild(form);
@@ -48,10 +60,10 @@ const handleLogout = (e: Event) => {
     <DropdownMenuGroup>
         <!-- SETTINGS -->
         <DropdownMenuItem as-child>
-            <a href="/admin/settings" class="block w-full">
+            <Link class="block w-full" href="/admin/settings/profile" prefetch as="button">
                 <Settings class="mr-2 h-4 w-4" />
-                Postavke
-            </a>
+                Settings
+            </Link>
         </DropdownMenuItem>
 
         <!-- FRONT / INFO WEB -->
@@ -65,14 +77,9 @@ const handleLogout = (e: Event) => {
 
     <DropdownMenuSeparator />
 
-    <!-- LOGOUT (native, bez flash/popup) -->
+    <!-- LOGOUT (native POST, bez flash/popup) -->
     <DropdownMenuItem as-child>
-        <button
-            type="button"
-            class="block w-full"
-            @click="handleLogout"
-            data-test="logout-button"
-        >
+        <button type="button" class="block w-full" @click="handleLogout" data-test="logout-button">
             <span class="flex items-center">
                 <LogOut class="mr-2 h-4 w-4" />
                 Log out
