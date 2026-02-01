@@ -88,7 +88,8 @@ defineProps<{
 
                 <Button
                     type="submit"
-                    class="mt-4 w-full"
+                    class="mt-4 w-full rounded border border-border bg-dark px-4 py-2 text-sm font-medium text-white
+           hover:opacity-90 disabled:opacity-60 inline-flex items-center justify-center gap-2"
                     :tabindex="4"
                     :disabled="processing"
                     data-test="login-button"

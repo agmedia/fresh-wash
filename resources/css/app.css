@@ -199,4 +199,10 @@
     }
 }
 
+@layer utilities {
+    form.bg-card {
+        background-color: hsl(0, 0%, 98%);
+    }
+}
+
 

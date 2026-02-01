@@ -27,8 +27,8 @@ class HandleInertiaRequests extends Middleware
     {
         return parent::version($request);
     }
-    
-    
+
+
     public function rootView(Request $request): string
     {
         return $request->is('admin*') ? 'app-admin' : 'app-front';
@@ -47,6 +47,15 @@ class HandleInertiaRequests extends Middleware
 
         return [
             ...parent::share($request),
+
+            // ⬇⬇⬇ DODAJ OVO ⬇⬇⬇
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error'   => fn () => $request->session()->get('error'),
+                'warning' => fn () => $request->session()->get('warning'),
+            ],
+            // ⬆⬆⬆ DODAJ OVO ⬆⬆⬆
+
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [

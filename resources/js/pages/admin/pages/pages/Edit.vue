@@ -207,13 +207,9 @@ const fileNames = computed(() => form.images?.map((f) => f.name) ?? []);
 
                 <!-- Body -->
                 <section class="space-y-3">
-                    <div>
-                        <div class="text-sm font-semibold text-foreground">Sadržaj</div>
-                        <div class="text-xs text-muted-foreground">Glavni tekst stranice/posta.</div>
-                    </div>
 
                     <!-- Body -->
-                    <section class="space-y-3">
+
                         <div>
                             <div class="text-sm font-semibold text-foreground">Sadržaj</div>
                             <div class="text-xs text-muted-foreground">Glavni tekst stranice/posta.</div>
@@ -238,7 +234,7 @@ const fileNames = computed(() => form.images?.map((f) => f.name) ?? []);
                         <p v-if="form.errors.body" class="text-xs text-rose-600">
                             {{ form.errors.body }}
                         </p>
-                    </section>
+
 
                     <p v-if="form.errors.body" class="text-xs text-rose-600">
                         {{ form.errors.body }}
