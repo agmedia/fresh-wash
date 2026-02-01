@@ -31,6 +31,19 @@ class HandleInertiaRequests extends Middleware
 
     public function rootView(Request $request): string
     {
+        // Auth pages -> clean root (bez front bootstrap/custom.js modala)
+        if (
+            $request->is('login') ||
+            $request->is('register') ||
+            $request->is('forgot-password') ||
+            $request->is('reset-password/*') ||
+            $request->is('confirm-password') ||
+            $request->is('verify-email') ||
+            $request->is('two-factor-challenge')
+        ) {
+            return 'app-auth';
+        }
+
         return $request->is('admin*') ? 'app-admin' : 'app-front';
     }
 
